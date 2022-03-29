@@ -85,7 +85,7 @@ You can do anything in whatever order you want, but here is one suggested path.
 - Implement `Trefoil.pop()`.
 - Implement `Trefoil.toString()`. This will help you if you need to debug later.
 - Implement integer literals in `Trefoil.interpret(Scanner)`.
-  - Ensure `TrefoilTest.testOne` passes
+  - Ensure `TrefoilTest.interpretOne` passes
   - Ensure `TrefoilTest.toString_` passes
 - Implement the `+` operator in `Trefoil.interpret(Scanner)`.
   - Ensure `TrefoilTest.interpretAdd` and `TrefoilTest.interpretAddSplit` pass.
