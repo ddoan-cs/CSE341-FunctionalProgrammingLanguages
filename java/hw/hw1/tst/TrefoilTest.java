@@ -7,14 +7,14 @@ public class TrefoilTest {
     public void interpretOne() {
         Trefoil trefoil = new Trefoil();
         trefoil.interpret("1");
-        assertEquals(trefoil.pop(), 1);
+        assertEquals(1, trefoil.pop());
     }
 
     @Test
     public void interpretAdd() {
         Trefoil trefoil = new Trefoil();
         trefoil.interpret("1 2 +");
-        assertEquals(trefoil.pop(), 3);
+        assertEquals(3, trefoil.pop());
     }
 
     @Test
@@ -23,14 +23,14 @@ public class TrefoilTest {
         trefoil.interpret("1 2");
         // the interpreter should track the stack across multiple calls to interpret()
         trefoil.interpret("+");
-        assertEquals(trefoil.pop(), 3);
+        assertEquals(3, trefoil.pop());
     }
 
     @Test
     public void toString_() {
         Trefoil trefoil = new Trefoil();
         trefoil.interpret("1 2 3");
-        assertEquals(trefoil.toString(), "1 2 3");
+        assertEquals("1 2 3", trefoil.toString());
     }
 
     // TODO: add unit tests here to cover all features in the language (don't forget to test comments!)
