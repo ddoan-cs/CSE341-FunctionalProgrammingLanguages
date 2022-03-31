@@ -69,10 +69,12 @@ f                ( a b -- c )
 
 to mean that `f` is a stack transformer that expects at least two elements on
 the stack, `a` and `b`, pops them, and pushes one element `c` on the stack.
-In other words, everything before the `--` is the stack before `f` is evaluated,
-and everything after the `--` is the stack after `f` is evaluated.
-**The top of the stack is written to the right.** So in the example above,
-`b` is on the top of the stack, and `a` is right below it on the stack.
+(Here, `f` is not a real operation, but instead stands for any operation we
+might want to describe. Below `f` will be replaced with something like `+` or
+`.` or whatever.) In other words, everything before the `--` is the stack before
+`f` is evaluated, and everything after the `--` is the stack after `f` is
+evaluated. **The top of the stack is written to the right.** So in the example
+above, `b` is on the top of the stack, and `a` is right below it on the stack.
 
 This notation also brings up another important point about our stack
 transformers: each transformer looks only at some number of elements on the top
