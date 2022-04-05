@@ -1,5 +1,5 @@
 import java.io.*;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Interpreter for the Trefoil v1 language.
@@ -9,8 +9,17 @@ import java.util.Scanner;
  * The interpreter also implements a main method to accept input from the keyboard or a file.a
  */
 public class Trefoil {
-    // TODO: probably declare one or more fields to track the state of the interpreter.
-    // TODO: either initialize your fields directly or create an explicit zero-argument constructor to do so.
+    /**
+     * Contains information about the state
+     */
+    Stack<Integer> values;
+
+    /**
+     * Initializes a stack to track the state of the interpreter
+     */
+    public Trefoil() {
+        values = new Stack<>();
+    }
 
     public static void main(String[] args) {
         Trefoil trefoil = new Trefoil();
@@ -21,9 +30,12 @@ public class Trefoil {
             try {
                 trefoil.interpret(new Scanner(new File(args[0])));
             } catch (FileNotFoundException e) {
-                e.printStackTrace();   // TODO: wrong; print nice message instead
-                System.exit(0); // TODO: wrong; exit indicating error instead
+                System.out.println("File argument not found.");
+                System.exit(1);
+            } catch (TrefoilError e) {
+                System.exit(1);
             }
+
         } else {
             System.err.println("Expected 0 or 1 arguments but got " + args.length);
             System.exit(1);
@@ -34,10 +46,50 @@ public class Trefoil {
     }
 
     /**
-     * Interpret the program given by the scanner.
+     * Interprets the program given by the scanner.
      */
     public void interpret(Scanner scanner) {
-        // TODO: your interpreter here. feel free to adapt the demo code from lecture 1
+        while (scanner.hasNext()) {
+            //Pushes integers onto the stack
+            if (scanner.hasNextInt()) {
+                values.push(scanner.nextInt());
+            }
+            else {
+                String token = scanner.next();
+
+                //Checks for comments and does nothing
+                if (token.startsWith(";")) {
+                }
+                //Pops two values off stack and pushes back sum
+                else if (token.equals(".") && values.size() >= 1) {
+                    System.out.println(values.pop());
+                }
+                else if (values.size() >= 2) {
+                    if (token.equals("+")) {
+                        values.push(values.pop() + values.pop());
+                    }
+                    //Pops two values off stack and pushes back difference (second value - first value)
+                    else if (token.equals("-")) {
+                        int value1 = values.pop();
+                        int value2 = values.pop();
+                        values.push(value2 - value1);
+                    }
+                    //Pops two values off stack and pushes back product
+                    else if (token.equals("*")) {
+                        values.push(values.pop() * values.pop());
+                    }
+                    else {
+                        throw new TrefoilError("Operation does not exist.");
+                    }
+                    //Throws exception if token is not found
+                }
+                else {
+                    throw new TrefoilError("Illegal number of arguments in stack.");
+                }
+
+            }
+        }
+        System.out.println(values);
     }
 
     /**
@@ -54,22 +106,27 @@ public class Trefoil {
      * @throws TrefoilError if there are no elements on the stack.
      */
     public int pop() {
-        // TODO: implement this
-        return 0;
+        if (values.isEmpty()) {
+            throw new TrefoilError("There are no values to pop from the stack");
+        }
+        return values.pop();
     }
 
     @Override
     public String toString() {
-        // TODO: change this to print the stack
-        //       (don't print it using Stack.toString like we did it in Lecture 1;
-        //       read the spec and check the tests)
-        return super.toString();
+        String output = "";
+        if (values.isEmpty()) {
+            return output;
+        }
+        for (Integer integer : values) {
+            output += integer + " ";
+        }
+        return output.trim();
     }
 
     /**
      * Throw this error whenever your interpreter detects a problem.
      *
-     * TODO: Catch this error in main and print a nice message and exit in a way that indicates an error.
      */
     public static class TrefoilError extends RuntimeException {
         public TrefoilError(String message) {

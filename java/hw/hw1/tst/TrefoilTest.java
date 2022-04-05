@@ -33,9 +33,41 @@ public class TrefoilTest {
         assertEquals(trefoil.toString(), "1 2 3");
     }
 
-    // TODO: add unit tests here to cover all features in the language (don't forget to test comments!)
+    @Test
+    public void interpretComments() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("1 2 3 ;asdfasdfsadf");
+        assertEquals(trefoil.toString(), "1 2 3");
+    }
 
+    @Test
+    public void interpretSub() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("1 3 -");
+        assertEquals(trefoil.toString(), "-2");
+    }
 
+    @Test
+    public void interpretMul() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("2 3 *");
+        assertEquals(trefoil.toString(), "6");
+    }
+
+    @Test
+    public void interpretEmpty() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("");
+        assertEquals(trefoil.toString(), "");
+    }
+
+    @Test
+    public void interpretPrint() {
+        //Just makes sure value is popped off, sys.out is fine from what is shown
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("2 .");
+        assertEquals(trefoil.toString(), "");
+    }
 
     @Test(expected = Trefoil.TrefoilError.class)
     public void stackUnderflow() {
@@ -43,9 +75,40 @@ public class TrefoilTest {
         trefoil.interpret("1 +");
     }
 
-    // TODO: add unit tests for malformed programs that the user might accidentally input
-    //       you can use the @Test(expected = Trefoil.TrefoilError.class) notation above
-    //       to write a test that fails if the exception is *not* thrown. Add at least
-    //       one test for each operator that can signal an error, plus at least one test
-    //       containing malformed input (a word that is not a token).
+    @Test(expected = Trefoil.TrefoilError.class)
+    public void interpretReverseOperation() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret(". 1");
+    }
+
+    @Test(expected = Trefoil.TrefoilError.class)
+    public void interpretUnknownToken() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("/ 1");
+    }
+
+    @Test(expected = Trefoil.TrefoilError.class)
+    public void interpretLessThanTwoElementsAdd() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("1 +");
+    }
+
+    @Test(expected = Trefoil.TrefoilError.class)
+    public void interpretLessThanTwoElementsSub() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("1 -");
+    }
+
+    @Test(expected = Trefoil.TrefoilError.class)
+    public void interpretLessThanTwoElementsMul() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret("1 *");
+    }
+
+    @Test(expected = Trefoil.TrefoilError.class)
+    public void interpretPrintLessThanOneValue() {
+        Trefoil trefoil = new Trefoil();
+        trefoil.interpret(".");
+        assertEquals(trefoil.toString(), "");
+    }
 }
