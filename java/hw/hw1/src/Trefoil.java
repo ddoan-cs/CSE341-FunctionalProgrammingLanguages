@@ -60,11 +60,12 @@ public class Trefoil {
                 //Checks for comments and does nothing
                 if (token.startsWith(";")) {
                 }
-                //Pops two values off stack and pushes back sum
+                //Pops one value off stack and outputs to console
                 else if (token.equals(".") && values.size() >= 1) {
                     System.out.println(values.pop());
                 }
                 else if (values.size() >= 2) {
+                    //Pops two values off stack and pushes back sum
                     if (token.equals("+")) {
                         values.push(values.pop() + values.pop());
                     }
@@ -78,10 +79,10 @@ public class Trefoil {
                     else if (token.equals("*")) {
                         values.push(values.pop() * values.pop());
                     }
+                    //Throws exception if token is not found
                     else {
                         throw new TrefoilError("Operation does not exist.");
                     }
-                    //Throws exception if token is not found
                 }
                 else {
                     throw new TrefoilError("Illegal number of arguments in stack.");
