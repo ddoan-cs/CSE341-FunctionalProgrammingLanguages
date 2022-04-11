@@ -13,11 +13,9 @@ let thd3 (_,_,x) = x (* gets the third element of a triple *)
 let is_older ((date1 : int * int * int), (date2 : int * int * int)) =
   if thd3(date1) < thd3(date2)
     then true
-else 
-  if fst3(date1) = fst3(date2) && snd3(date1)  < snd3(date2) 
-    then true
-else
-  if (thd3(date1) < thd3(date2)  && fst3(date1) = fst3(date2)  && snd3(date1)  > snd3(date2))  
+else if snd3(date1)  < snd3(date2) && fst3(date1) <= fst3(date2)
+  then true
+else if (thd3(date1) < thd3(date2)  && fst3(date1) = fst3(date2)  && snd3(date1)  > snd3(date2))  
   then true
 else false
 
