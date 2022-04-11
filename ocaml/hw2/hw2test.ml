@@ -36,28 +36,28 @@ let%test _ = number_in_month([(15, 1, 2021); (1, 4, 2022)], 5) = 0
 (* TODO: continue with tests for problem 3 and onward here *)
 
 (* 3 *)
-let%test _ = number_in_months([(15, 1, 2021); (1, 1, 2022)], [1, 2]) = 2
+let%test _ = number_in_months([(15, 1, 2021); (1, 1, 2022)], [1; 2]) = 2
 
-let%test _ = number_in_months([(15, 1, 2021); (1, 2, 2022)], [1, 2]) = 2
+let%test _ = number_in_months([(15, 1, 2021); (1, 2, 2022)], [1; 2]) = 2
 
 let%test _ = number_in_months([(15, 1, 2021); (1, 2, 2022)], []) = 0
 
-let%test _ = number_in_months([], [1, 2]) = 0
+let%test _ = number_in_months([], [1; 2]) = 0
 
 (* 4 *) 
-let%test _ = dates_in_months([(15, 1, 2021); (1, 4, 2022)], 1) = [(15, 1, 2021)]
+let%test _ = dates_in_month([(15, 1, 2021); (1, 4, 2022)], 1) = [(15, 1, 2021)]
 
-let%test _ = dates_in_months([(15, 1, 2021); (1, 1, 2022)], 1) = [(15, 1, 2021); (1, 1, 2022)]
+let%test _ = dates_in_month([(15, 1, 2021); (1, 1, 2022)], 1) = [(15, 1, 2021); (1, 1, 2022)]
 
-let%test _ = dates_in_months([], 1) = []
+let%test _ = dates_in_month([], 1) = []
 
 
 (* 5 *)
-let%test _ = dates_in_months([(15, 1, 2021); (1, 2, 2022)], [1, 2]) = [(15, 1, 2021); (1, 2, 2022)]
+let%test _ = dates_in_months([(15, 1, 2021); (1, 2, 2022)], [1; 2]) = [(15, 1, 2021); (1, 2, 2022)]
 
-let%test _ = dates_in_months([(15, 3, 2021); (1, 1, 2022)], [1, 2]) = [(1, 1, 2022)]
+let%test _ = dates_in_months([(15, 3, 2021); (1, 1, 2022)], [1; 2]) = [(1, 1, 2022)]
 
-let%test _ = dates_in_months([], [1, 2]) = []
+let%test _ = dates_in_months([], [1; 2]) = []
 
 let%test _ = dates_in_months([(15, 3, 2021); (1, 1, 2022)], []) = []
 
@@ -84,19 +84,19 @@ let%test _ = number_before_reaching_sum(10, []) = 0
 let%test _ = number_before_reaching_sum(10, [0; 10; 3; 4; 5;]) = 1
 
 (* 9 *)
-let%test _ = what_month(20) = "January"
+let%test _ = what_month(20) = 1
 
-let%test _ = what_month(365) = "December"
+let%test _ = what_month(365) = 12
 
-let%test _ = what_month(1) = "January"
+let%test _ = what_month(1) = 1
 
 
 (* 10 *)
-let%test _ = month_range((15, 1, 2021), (1, 4, 2022)) = [1; 2; 3; 4;]
+let%test _ = month_range((20), (40)) = [1; 2]
 
-let%test _ = month_range((15, 1, 2021), (1, 1, 2022)) = [1]
+let%test _ = month_range((20), (60)) = [1; 2; 3]
 
-let%test _ = month_range((15, 4, 2021), (1, 1, 2022)) = []
+let%test _ = month_range((50), (20)) = []
 
 
 (* 11 *)
