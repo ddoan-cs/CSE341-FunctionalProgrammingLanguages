@@ -15,11 +15,11 @@ let%test _ = not (is_older((1, 2, 3), (3, 2, 1)))
 (* TODO: more tests for problem 1 here, probably... *)
 let%test _ = not (is_older((1, 1, 1), (1, 1, 1)))
 
-let%test _ = not (is_older((12, 1, 1), (15, 1, 1)))
+let%test _ = (is_older((12, 1, 1), (15, 1, 1)))
 
-let%test _ = not (is_older((1, 12, 1), (1, 15, 1)))
+let%test _ = (is_older((1, 12, 1), (1, 15, 1)))
 
-let%test _ = not (is_older((1, 1, 12), (1, 1, 15)))
+let%test _ = (is_older((1, 1, 12), (1, 1, 15)))
 
 (* 2 *)
 
@@ -73,7 +73,7 @@ let%test _ = get_nth([], 1) = ""
 (* 7 *)
 let%test _ = string_of_date(15, 12, 2002) = "December-15-2002"
 
-let%test _ = string_of_date(31, 2, 2006) = "February-31-2002"
+let%test _ = string_of_date(31, 2, 2006) = "February-31-2006"
 
 
 (* 8 *)
@@ -92,9 +92,7 @@ let%test _ = what_month(1) = 1
 
 
 (* 10 *)
-let%test _ = month_range((20), (40)) = [1; 2]
-
-let%test _ = month_range((20), (60)) = [1; 2; 3]
+let%test _ = month_range((30), (35)) = [1; 1; 2; 2; 2; 2]
 
 let%test _ = month_range((50), (20)) = []
 
