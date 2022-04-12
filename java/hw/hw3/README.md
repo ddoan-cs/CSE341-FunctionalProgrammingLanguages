@@ -192,10 +192,10 @@ Implement the missing methods about variables in `DynamicEnvironment`:
 - Refamiliarize yourself with the starter code for `DynamicEnvironment`
 - Fix the first `TODO` in `DynamicEnvironment.getVariable` and ensure
   `testVarNotFound` passes.
-- Fix the second `TODO` in `DynamicEnvironment.getVariable` and ensure `testVar`
-  passes.
-- Implement `DynamicEnvironment.putVariable` and ensure `testPutVariable` and
-  `testVarBindingLookup` pass.
+- Fix the second `TODO` in `DynamicEnvironment.getVariable`.
+- Implement `DynamicEnvironment.putVariable` and ensure `testPutVariable`
+- After implementing `getVariable` and `putVariable`, ensure the tests `testVar`
+  and `testVarBindingLookup` pass.
 
 Implement the new `test` binding:
 - Implement the `test` *binding* using this modified workflow.
