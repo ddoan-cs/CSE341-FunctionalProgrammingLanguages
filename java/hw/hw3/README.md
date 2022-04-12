@@ -188,6 +188,15 @@ Implement new expressions:
       - wrong number of arguments passed to primitive operation (should throw `TrefoilError.AbstractSyntaxError`)
 - Implement `if` following the workflow.
 
+Implement the missing methods about variables in `DynamicEnvironment`:
+- Refamiliarize yourself with the starter code for `DynamicEnvironment`
+- Fix the first `TODO` in `DynamicEnvironment.getVariable` and ensure
+  `testVarNotFound` passes.
+- Fix the second `TODO` in `DynamicEnvironment.getVariable` and ensure `testVar`
+  passes.
+- Implement `DynamicEnvironment.putVariable` and ensure `testPutVariable` and
+  `testVarBindingLookup` pass.
+
 Implement the new `test` binding:
 - Implement the `test` *binding* using this modified workflow.
   - Since `test` is a *binding* not an expression:
@@ -199,15 +208,6 @@ Implement the new `test` binding:
   - Still write a `parsePST` test
   - Write any additional normal case or error case tests you think are
     appropriate and ensure they pass.
-
-Implement the missing methods about variables in `DynamicEnvironment`:
-- Refamiliarize yourself with the starter code for `DynamicEnvironment`
-- Fix the first `TODO` in `DynamicEnvironment.getVariable` and ensure
-  `testVarNotFound` passes.
-- Fix the second `TODO` in `DynamicEnvironment.getVariable` and ensure `testVar`
-  passes.
-- Implement `DynamicEnvironment.putVariable` and ensure `testPutVariable` and
-  `testVarBindingLookup` pass.
 
 Finish implementing the other expressions (*except* function calls):
 - Implement `let` following the workflow.
