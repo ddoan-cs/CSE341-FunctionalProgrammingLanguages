@@ -131,7 +131,7 @@ Familiarize yourself with the provided files:
 - Read the tour more carefully and poke around at the starter code files so you
   know where too look later.
 - Press the "Build" button in IntelliJ and ensure there are no errors.
-- Run the tests in `Trefoil2Test.java` and ensure that 24 fail and 8 pass. (!)
+- Run the tests in `Trefoil2Test.java` and ensure that 33 fail and 8 pass. (!)
   The passing tests are due to features we have implemented for you in the starter code.
 - Look at `LANGUAGE.md` to get an idea of the list of expressions and bindings
   you have to add.
