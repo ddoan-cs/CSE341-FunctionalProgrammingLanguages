@@ -226,12 +226,9 @@ public class Trefoil2Test {
         Interpreter.interpretBinding(Binding.parseString("(test (= 3 x))"), env);
     }
 
-    @Test
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
     public void testTestBindingFail() {
-        // Who tests the tests??
         Interpreter.DynamicEnvironment env = Interpreter.DynamicEnvironment.singleton("x", Expression.ofInt(3));
-
-        // just check that no exception is thrown here
         Interpreter.interpretBinding(Binding.parseString("(test (= 2 x))"), env);
     }
 
