@@ -196,7 +196,6 @@ public class Interpreter {
 
             // TODO: lookup the function in the map and return the corresponding function binding
             // Hint: first, read the code for containsFunction().
-            // Hint: you will likely need the functionBinding field from Entry.FunctionEntry
             return null;
         }
 
