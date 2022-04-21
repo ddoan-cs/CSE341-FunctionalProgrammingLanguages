@@ -29,10 +29,10 @@ $(OUT)/tst/: $(JAVA_TST) $(OUT)/src/
 	$(JC) -d $@ -cp "$(DEPS)/*$(SEP)$(OUT)/src" $(JAVA_TST)
 
 run: $(OUT)/src/
-	java -cp "$(DEPS)/*$(SEP)$(OUT)/src" Trefoil2
+	java -ea -cp "$(DEPS)/*$(SEP)$(OUT)/src" trefoil2.Trefoil2 $(ARGS)
 
 test: $(OUT)/tst/
-	java -cp "$(DEPS)/*$(SEP)$(OUT)/src$(SEP)$(OUT)/tst" org.junit.runner.JUnitCore Trefoil2Test
+	java -ea -cp "$(DEPS)/*$(SEP)$(OUT)/src$(SEP)$(OUT)/tst" org.junit.runner.JUnitCore Trefoil2Test
 
 clean:
 	@ echo "[clean]"
