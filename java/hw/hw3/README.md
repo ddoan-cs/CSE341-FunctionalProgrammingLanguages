@@ -228,11 +228,14 @@ Implement the missing methods about functions in `DynamicEnvironment`:
   - Write normal case tests for these and ensure they pass.
 
 Implement functions:
-- Implement function *bindings* by following the modified binding workflow.
-  - Don't forget to save the defining environment in the `FunctionEntry`
-- Implement function *calls* (which are expressions) following the expression workflow.
+- Function *bindings* are implemented for you in the starter code.
+  - The hardest part is actually parsing them. You don't need to understand this.
+  - The easy part is interpreting them. We just call `extendFunction` on the dynamic environment.
+    Notice that this saves the defining environment as well via `putFunction`.
+- Your job is to implement function *calls* (which are expressions) following the expression workflow.
   - Don't forget to evaluate the function body in an extended version of its
     *defining* environment, *not* the environment of the caller!
+    - This implements lexical scope.
 
 Implement your own feature (optional):
 - Design and implement a new expression or binding.

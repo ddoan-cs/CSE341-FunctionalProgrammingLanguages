@@ -104,7 +104,7 @@ List of symbol keywords (cannot be used as variable names)
 - `true`, `false`, `nil`
 
 List of node head keywords (cannot be used as function names)
-- `define`, `+`, `-`, `*`, `=`, `if`, `let`, `cons`, `nil?`, `cons?`, `car`, `cdr`
+- `test`, `define`, `+`, `-`, `*`, `=`, `if`, `let`, `cons`, `nil?`, `cons?`, `car`, `cdr`
 
 **Exercise**(0 points, just for fun): Explain how the starter code violates this
 specification slightly by showing that you can define a function with a reserved
