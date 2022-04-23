@@ -35,8 +35,11 @@ public abstract class Binding {
         private final Expression body;
     }
 
-    // TODO: define a new kind of binding called TestBinding that takes an expression
-
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class TestBinding extends Binding {
+        private final Expression expression;
+    }
 
     /**
      * Tries to convert a PST to a Binding.
@@ -80,22 +83,21 @@ public abstract class Binding {
                                 .collect(Collectors.toList()),
                         Expression.parsePST(children.get(2)));
             }
-        // TODO: uncomment when ready to implement test binding
-        /*} else if (head.equals("test")) {
-            // TODO: parse test binding here
+        } else if (head.equals("test")) {
+            if (children.size() - 1 != 1) {
+                throw new Trefoil2.TrefoilError.RuntimeError("Malformed top-level test binding");
+            }
             // Hint: Check that there is exactly one child, then use trefoil2.Expression.parsePST on the child.
             //       Remember that the children list includes the head, so the real children start at
             //       index 1.
-            return new TestBinding(...);
-
-         */
+            return new TestBinding(Expression.parsePST(children.get(1)));
         } else {
             // If the head is not recognized, the whole PST represents a top-level expression.
             return new TopLevelExpression(Expression.parsePST(pst));
         }
     }
 
-    // Convenience factory method for unit testsing.
+    // Convenience factory method for unit testing.
     public static Binding parseString(String s) {
         return parsePST(ParenthesizedSymbolTree.parseString(s));
     }

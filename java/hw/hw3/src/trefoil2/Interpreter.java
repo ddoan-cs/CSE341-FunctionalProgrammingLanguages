@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,20 +29,132 @@ public class Interpreter {
             Expression.Plus p = (Expression.Plus) e;
             Expression v1 = interpretExpression(p.getLeft(), environment);
             Expression v2 = interpretExpression(p.getRight(), environment);
-            // TODO: the following return statement is wrong because it does not correctly check
-            //       for run-time type errors. fix it by checking that both children evaluated to
-            //       IntegerLiterals and if not throwing TrefoilError.RuntimeError.
-            return new Expression.IntegerLiteral(
-                    ((Expression.IntegerLiteral) v1).getData() +
-                            ((Expression.IntegerLiteral) v2).getData()
-            );
+            if (v1 instanceof Expression.IntegerLiteral && v2 instanceof Expression.IntegerLiteral) {
+                return new Expression.IntegerLiteral(
+                        ((Expression.IntegerLiteral) v1).getData() +
+                                ((Expression.IntegerLiteral) v2).getData()
+                );
+            } else {
+                throw new Trefoil2.TrefoilError.RuntimeError("The arguments given are not valid.");
+            }
+        } else if (e instanceof Expression.Minus) {
+            Expression.Minus m = (Expression.Minus) e;
+            Expression v1 = interpretExpression(m.getLeft(), environment);
+            Expression v2 = interpretExpression(m.getRight(), environment);
+            if (v1 instanceof Expression.IntegerLiteral && v2 instanceof Expression.IntegerLiteral) {
+                return new Expression.IntegerLiteral(
+                        ((Expression.IntegerLiteral) v1).getData() -
+                                ((Expression.IntegerLiteral) v2).getData()
+                );
+            } else {
+                throw new Trefoil2.TrefoilError.RuntimeError("The arguments given are not valid.");
+            }
+        } else if (e instanceof Expression.Times) {
+            Expression.Times t = (Expression.Times) e;
+            Expression v1 = interpretExpression(t.getLeft(), environment);
+            Expression v2 = interpretExpression(t.getRight(), environment);
+            if (v1 instanceof Expression.IntegerLiteral && v2 instanceof Expression.IntegerLiteral) {
+                return new Expression.IntegerLiteral(
+                        ((Expression.IntegerLiteral) v1).getData() *
+                                ((Expression.IntegerLiteral) v2).getData()
+                );
+            } else {
+                throw new Trefoil2.TrefoilError.RuntimeError("The arguments given are not valid.");
+            }
+        } else if (e instanceof Expression.Div) {
+            Expression.Div d = (Expression.Div) e;
+            Expression v1 = interpretExpression(d.getLeft(), environment);
+            Expression v2 = interpretExpression(d.getRight(), environment);
+            if (v1 instanceof Expression.IntegerLiteral && v2 instanceof Expression.IntegerLiteral) {
+                return new Expression.IntegerLiteral(
+                        ((Expression.IntegerLiteral) v1).getData() /
+                                ((Expression.IntegerLiteral) v2).getData()
+                );
+            } else {
+                throw new Trefoil2.TrefoilError.RuntimeError("The arguments given are not valid.");
+            }
+        }else if (e instanceof Expression.Equals) {
+            Expression.Equals eq = (Expression.Equals) e;
+            Expression v1 = interpretExpression(eq.getLeft(), environment);
+            Expression v2 = interpretExpression(eq.getRight(), environment);
+            if (v1 instanceof Expression.IntegerLiteral && v2 instanceof Expression.IntegerLiteral) {
+                return new Expression.BooleanLiteral(
+                        ((Expression.IntegerLiteral) v1).getData() ==
+                                ((Expression.IntegerLiteral) v2).getData()
+                );
+            } else {
+                throw new Trefoil2.TrefoilError.RuntimeError("The arguments given are not valid.");
+            }
+        } else if (e instanceof Expression.Let) {
+            Expression.Let l = (Expression.Let) e;
+            Expression v1 = interpretExpression(l.getDef(), environment);
+            DynamicEnvironment env = environment.extendVariable(l.getName(), v1);
+            Expression v2 = interpretExpression(l.getBody(), env);
+            env = environment.extendVariable(l.getName(), v2);
+            return env.getVariable(l.getName());
+        } else if (e instanceof Expression.Car) {
+            Expression.Car c = (Expression.Car) e;
+            Expression.Cons v1 = (Expression.Cons) interpretExpression(c.getExp(), environment);
+            return interpretExpression(v1.getLeft(), environment);
+        } else if (e instanceof Expression.Cdr) {
+            Expression.Cdr c = (Expression.Cdr) e;
+            Expression.Cons v1 = (Expression.Cons) interpretExpression(c.getExp(), environment);
+                return interpretExpression(v1.getRight(), environment);
+        }
+        else if (e instanceof Expression.NilQ) {
+            Expression.NilQ c = (Expression.NilQ) e;
+            Expression v1 = interpretExpression(c.getExp(), environment);
+            if (v1 instanceof Expression.Nil) {
+                return new Expression.BooleanLiteral(true);
+            } else {
+                return new Expression.BooleanLiteral(false);
+            }
+        }
+        else if (e instanceof Expression.ConQ) {
+            Expression.ConQ c = (Expression.ConQ) e;
+            if (!(c.getExp() instanceof Expression.IntegerLiteral) && !(c.getExp() instanceof Expression.BooleanLiteral) &&
+                    !(c.getExp() instanceof Expression.Nil)) {
+                return new Expression.BooleanLiteral(true);
+            } else {
+                return new Expression.BooleanLiteral(false);
+            }
+        }
+        else if (e instanceof Expression.If) {
+            Expression.If i = (Expression.If) e;
+            Expression v1 = interpretExpression(i.getOne(), environment);
+            Expression v2 = interpretExpression(i.getTwo(), environment);
+            if (v1 instanceof Expression.BooleanLiteral) {
+                if (((Expression.BooleanLiteral) v1).isData()) {
+                    return v2;
+                } else {
+                    return interpretExpression(i.getThree(), environment);
+                }
+            } else {
+                return v2;
+            }
+        } else if (e instanceof Expression.Function) {
+            Expression.Function f = (Expression.Function) e;
+            List<Expression> args = f.getExps();
+            DynamicEnvironment.Entry.FunctionEntry entry = environment.getFunction(f.getName());
+            List<String> params = entry.getFunctionBinding().getArgnames();
+            DynamicEnvironment defenv = entry.getDefiningEnvironment();
 
+            if (args.size() != params.size()) {
+                throw new Trefoil2.TrefoilError.RuntimeError("There are not the right number of args.");
+            }
+            List<Expression> vals = new ArrayList<>();
+            for (Expression arg : args) {
+                vals.add(interpretExpression(arg, environment));
+            }
+            return interpretExpression(entry.getFunctionBinding().getBody(), defenv.extendVariables
+                    (params, vals));
 
-        // TODO: implement semantics for new AST nodes here, following the examples above
-        // TODO: be sure to check for run-time type errors and throw TrefoilError.RuntimeError.
-        // } else if (e instanceof ...) {
-
-
+        } else if (e instanceof Expression.BooleanLiteral) {
+            return e;
+        } else if (e instanceof Expression.Nil) {
+            return e;
+        } else if (e instanceof Expression.Cons) {
+            return e;
         } else {
             // Otherwise it's an expression AST node we don't recognize. Tell the interpreter implementor.
             throw new Trefoil2.InternalInterpreterError("\"impossible\" expression AST node " + e.getClass());
@@ -72,11 +185,18 @@ public class Interpreter {
             System.out.println(fb.getFunname() + " is defined");
             return newEnvironment;
         }
-        // TODO: implement the TestBinding here
-
-
-        // Otherwise it's a binding AST node we don't recognize. Tell the interpreter implementor.
-        throw new Trefoil2.InternalInterpreterError("\"impossible\" binding AST node " + b.getClass());
+        else if (b instanceof Binding.TestBinding) {
+            Binding.TestBinding tb = (Binding.TestBinding) b;
+            Expression bool = (interpretExpression(tb.getExpression(), environment));
+            System.out.println(bool);
+            if (!(bool.equals(Expression.ofBoolean(true)))) {
+                throw new Trefoil2.TrefoilError.RuntimeError("Test has failed.");
+            }
+            return environment;
+        } else {
+            // Otherwise it's a binding AST node we don't recognize. Tell the interpreter implementor.
+            throw new Trefoil2.InternalInterpreterError("\"impossible\" binding AST node " + b.getClass());
+        }
     }
 
 
@@ -139,21 +259,15 @@ public class Interpreter {
         }
 
         public Expression getVariable(String varname) {
-            // TODO: convert this assert to instead throw a TrefoilError.RuntimeError if the variable is not bound
-            assert containsVariable(varname);
-
-
-
-            // TODO: lookup the variable in the map and return the corresponding value
-            // Hint: first, read the code for containsVariable().
-            // Hint: you will likely need the value field from Entry.VariableEntry
-            return null;
+            if (!(containsVariable(varname))) {
+                throw new Trefoil2.TrefoilError.RuntimeError("Unbound variable arguments.");
+            }
+            Entry.VariableEntry var = (Entry.VariableEntry)map.get(varname);
+            return var.value;
         }
 
         public void putVariable(String varname, Expression value) {
-            // TODO: bind the variable in the backing map
-            // Hint: map.put
-            // Hint: either call new Entry.VariableEntry or the factory Entry.variable
+            map.put(varname, new Entry.VariableEntry(value));
         }
 
         /**
@@ -191,20 +305,19 @@ public class Interpreter {
         }
 
         public Entry.FunctionEntry getFunction(String funname) {
+            if (!(containsFunction(funname))) {
+                throw new Trefoil2.TrefoilError.RuntimeError("Unbound variable arguments.");
+            }
+            return (Entry.FunctionEntry)map.get(funname);
             // TODO: convert this assert to instead throw a TrefoilError.RuntimeError if the function is not bound
-            assert containsFunction(funname);
 
             // TODO: lookup the function in the map and return the corresponding function binding
             // Hint: first, read the code for containsFunction().
-            return null;
         }
 
         public void putFunction(String funname, Binding.FunctionBinding functionBinding) {
-            // TODO: bind the function in the backing map
-            // Be careful to set up recursion correctly!
-            // Hint: Pass definingEnvironment=this to the Entry.function factory, and then call map.put.
-            //       That way, by the time Trefoil calls the function, everything points to
-            //       the right place. Tricky!
+            Entry.FunctionEntry fun = new Entry.FunctionEntry(functionBinding, this);
+            map.put(funname, fun);
         }
 
         public DynamicEnvironment extendFunction(String funname, Binding.FunctionBinding functionBinding) {

@@ -3,6 +3,7 @@ package trefoil2;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,6 +45,85 @@ public abstract class Expression {
         private final Expression left, right;
     }
 
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Minus extends Expression {
+        private final Expression left, right;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Times extends Expression {
+        private final Expression left, right;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Equals extends Expression {
+        private final Expression left, right;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Let extends Expression {
+        private final String name;
+        private final Expression def, body;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Nil extends Expression {
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Cons extends Expression {
+        private final Expression left, right;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Car extends Expression {
+        private final Expression exp;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Cdr extends Expression {
+        private final Expression exp;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class NilQ extends Expression {
+        private final Expression exp;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class ConQ extends Expression {
+        private final Expression exp;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class If extends Expression {
+        private final Expression one,two, three;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Function extends Expression {
+        private final String name;
+        private final List<Expression> exps;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Div extends Expression {
+        private final Expression left, right;
+    }
+
     // TODO: Your new AST classes here.
     // TODO: Don't forget to copy the @Equals... and @Data annotations onto all your classes.
 
@@ -56,12 +136,10 @@ public abstract class Expression {
         return new BooleanLiteral(b);
     }
     public static Expression nil() {
-        // TODO: implement this by calling "new Nil()" or whatever you call your Nil AST class
-        throw new Trefoil2.InternalInterpreterError("Nil not implemented");
+        return new Nil();
     }
     public static Expression cons(Expression e1, Expression e2) {
-        // TODO: implement this by calling "new Cons(e1, e2)" or whatever you call your Cons AST class
-        throw new Trefoil2.InternalInterpreterError("Cons not implemented");
+        return new Cons(e1, e2);
     }
 
     /**
@@ -82,10 +160,11 @@ public abstract class Expression {
             } catch (NumberFormatException e) {
                 switch (s) {
                     case "true":
-                         return new BooleanLiteral(true);
-                    // TODO: add symbol keywords here, following the example above
-
-
+                        return new BooleanLiteral(true);
+                    case "false":
+                        return new BooleanLiteral(false);
+                    case "nil":
+                        return new Nil();
                     // if the symbol is not a symbol keyword, then it represents a variable reference
                     default:
                         return new VariableReference(s);
@@ -106,18 +185,79 @@ public abstract class Expression {
                         throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
                     }
                     return new Plus(parsePST(children.get(1)), parsePST(children.get(2)));
-
-                // TODO: add more node keywords here, following the example above
-                // case "-":
-                //      // ...
-
-
-
+                case "-":
+                    if (children.size() - 1 /* -1 for head */ != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Minus(parsePST(children.get(1)), parsePST(children.get(2)));
+                case "*":
+                    if (children.size() - 1 /* -1 for head */ != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Times(parsePST(children.get(1)), parsePST(children.get(2)));
+                case "=":
+                    if (children.size() - 1 /* -1 for head */ != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Equals(parsePST(children.get(1)), parsePST(children.get(2)));
+                case "/":
+                    if (children.size() - 1 /* -1 for head */ != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Div(parsePST(children.get(1)), parsePST(children.get(2)));
+                case "let":
+                    if (children.size() - 1 /* -1 for head */ != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    ParenthesizedSymbolTree p = children.get(1);
+                    ParenthesizedSymbolTree.Node node = (ParenthesizedSymbolTree.Node) p;
+                    List<ParenthesizedSymbolTree> nodeChildren = node.getChildren();
+                    ParenthesizedSymbolTree.Node var = (ParenthesizedSymbolTree.Node) nodeChildren.get(0);
+                    List<ParenthesizedSymbolTree> varChildren = var.getChildren();
+                    if (varChildren.size() != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments," +
+                                "a variable and an expression as its first argument and another expression defining it.");
+                    }
+                    return new Let(((ParenthesizedSymbolTree.Symbol) varChildren.get(0)).getSymbol(),parsePST(varChildren.
+                            get(1)), parsePST(children.get(2)));
+                case "nil?":
+                    if (children.size() - 1 /* -1 for head */ != 1) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new NilQ(parsePST(children.get(1)));
+                case "cons?":
+                    if (children.size() - 1 /* -1 for head */ != 1) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new ConQ(parsePST(children.get(1)));
+                case "car":
+                    if (children.size() - 1 /* -1 for head */ != 1) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Car(parsePST(children.get(1)));
+                case "cdr":
+                    if (children.size() - 1 /* -1 for head */ != 1) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Cdr(parsePST(children.get(1)));
+                case "cons":
+                    if (children.size() - 1 /* -1 for head */ != 2) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new Cons(parsePST(children.get(1)), parsePST(children.get(2)));
+                case "if":
+                    if (children.size() - 1 /* -1 for head */ != 3) {
+                        throw new Trefoil2.TrefoilError.AbstractSyntaxError("Operator " + head + " expects 2 arguments");
+                    }
+                    return new If(parsePST(children.get(1)), parsePST(children.get(2)),  parsePST(children.get(3)));
                 // if the symbol is not a node keyword, then it represents a function call
                 default:
                     // eventually we will add function calls here
-                    throw new Trefoil2.TrefoilError.AbstractSyntaxError("Unrecognized operator " + head);
-
+                    List<Expression> funcs = new ArrayList<>();
+                    for (int i = 1; i < children.size(); i++) {
+                        funcs.add(parsePST(children.get(i)));
+                    }
+                    return new Function(((ParenthesizedSymbolTree.Symbol) children.get(0)).getSymbol(), funcs);
             }
         }
     }
