@@ -44,6 +44,18 @@ public abstract class Expression {
         private final Expression left, right;
     }
 
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Minus extends Expression {
+        private final Expression left, right;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    public static class Multiply extends Expression {
+        private final Expression left, right;
+    }
+
     // TODO: Your new AST classes here.
     // TODO: Don't forget to copy the @Equals... and @Data annotations onto all your classes.
 

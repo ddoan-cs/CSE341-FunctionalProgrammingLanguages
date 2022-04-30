@@ -45,9 +45,9 @@ public class Trefoil2 {
                 if (pstree == null) {
                     break;
                 }
-                // System.out.println(pstree);  // uncomment to see the PST
+                System.out.println(pstree);  // uncomment to see the PST
                 Binding b = Binding.parsePST(pstree);
-                //System.out.println(b);  // uncomment to see the parsed binding
+                System.out.println(b);  // uncomment to see the parsed binding
                 env = Interpreter.interpretBinding(b, env);
             } catch (TrefoilError e) {
                 System.out.println(e.getMessage());

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="trefoil-all">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/java/deps/trefoil-all.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

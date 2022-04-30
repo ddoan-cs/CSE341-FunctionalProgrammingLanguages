@@ -31,18 +31,24 @@ public class Interpreter {
             // TODO: the following return statement is wrong because it does not correctly check
             //       for run-time type errors. fix it by checking that both children evaluated to
             //       IntegerLiterals and if not throwing TrefoilError.RuntimeError.
-            return new Expression.IntegerLiteral(
-                    ((Expression.IntegerLiteral) v1).getData() +
-                            ((Expression.IntegerLiteral) v2).getData()
-            );
-
+            if (v1 instanceof Expression.IntegerLiteral && v2 instanceof Expression.IntegerLiteral) {
+                return new Expression.IntegerLiteral(
+                        ((Expression.IntegerLiteral) v1).getData() +
+                                ((Expression.IntegerLiteral) v2).getData()
+                );
+            } else {
+                throw new Trefoil2.TrefoilError.RuntimeError("hi");
+            }
+        } else if (e instanceof Expression.BooleanLiteral) {
+            return e;
+        }
 
         // TODO: implement semantics for new AST nodes here, following the examples above
         // TODO: be sure to check for run-time type errors and throw TrefoilError.RuntimeError.
         // } else if (e instanceof ...) {
 
 
-        } else {
+        else {
             // Otherwise it's an expression AST node we don't recognize. Tell the interpreter implementor.
             throw new Trefoil2.InternalInterpreterError("\"impossible\" expression AST node " + e.getClass());
         }
