@@ -172,7 +172,29 @@ public class Trefoil2Test {
                 Interpreter.interpretExpression(Expression.parseString("(cons 1 2)")));
     }
 
-    // TODO: add tests for nil? and cons? here
+    @Test
+    public void testNilQFalse() {
+        assertEquals(Expression.ofBoolean(false),
+                Interpreter.interpretExpression(Expression.parseString("(nil? 1)")));
+    }
+
+    @Test
+    public void testNilQTrue() {
+        assertEquals(Expression.ofBoolean(true),
+                Interpreter.interpretExpression(Expression.parseString("(nil? nil)")));
+    }
+
+    @Test
+    public void testConsQTrue() {
+        assertEquals(Expression.ofBoolean(true),
+                Interpreter.interpretExpression(Expression.parseString("(cons? (+ 1 2))")));
+    }
+
+    @Test
+    public void testConsQFalse() {
+        assertEquals(Expression.ofBoolean(false),
+                Interpreter.interpretExpression(Expression.parseString("(cons? 1)")));
+    }
 
     @Test
     public void testCar() {
@@ -184,6 +206,72 @@ public class Trefoil2Test {
     public void testCdr() {
         assertEquals(Expression.ofInt(2),
                 Interpreter.interpretExpression(Expression.parseString("(cdr (cons 1 2))")));
+    }
+
+    @Test
+    public void testDiv() {
+        assertEquals(Expression.ofInt(0), Interpreter.interpretExpression(
+                Expression.parseString("(/ 1 2)")));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testDivMissingOneArg() {
+        Interpreter.interpretExpression(Expression.parseString("(/ 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testDivTypeError() {
+        Interpreter.interpretExpression(Expression.parseString("(/ 1 true)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testDivManyArgs() {
+        Interpreter.interpretExpression(Expression.parseString("(/ 1 1 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testMinusMissingOneArg() {
+        Interpreter.interpretExpression(Expression.parseString("(- 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testMinusTypeError() {
+        Interpreter.interpretExpression(Expression.parseString("(- 1 true)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testMinusManyArgs() {
+        Interpreter.interpretExpression(Expression.parseString("(- 1 1 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testTimesMissingOneArg() {
+        Interpreter.interpretExpression(Expression.parseString("(* 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testTimesTypeError() {
+        Interpreter.interpretExpression(Expression.parseString("(* 1 true)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testTimesManyArgs() {
+        Interpreter.interpretExpression(Expression.parseString("(* 1 1 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testEqualsMissingOneArg() {
+        Interpreter.interpretExpression(Expression.parseString("(= 1)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testEqualsTypeError() {
+        Interpreter.interpretExpression(Expression.parseString("(= 1 true)"));
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.AbstractSyntaxError.class)
+    public void testEqualsManyArgs() {
+        Interpreter.interpretExpression(Expression.parseString("(= 1 1 1)"));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -331,5 +419,34 @@ public class Trefoil2Test {
         );
     }
 
-    // TODO: add a test for your new top-level "test" binding here
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testTestBindingManyArgs() {
+        Binding.parseString("(test 1 2)");
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testTestBindingMissingArg() {
+        Binding.parseString("(test )");
+    }
+
+    @Test
+    public void testPutFunction() {
+        Interpreter.DynamicEnvironment env = new Interpreter.DynamicEnvironment();
+        env.putFunction("fun", new Binding.FunctionBinding("hi", null,
+                new Expression.BooleanLiteral(true)));
+        env.getFunction("fun");
+    }
+    @Test
+    public void testGetFunctionTrue() {
+        Interpreter.DynamicEnvironment env = new Interpreter.DynamicEnvironment();
+        env.putFunction("fun", new Binding.FunctionBinding("hi", null,
+                new Expression.BooleanLiteral(true)));
+        env.getFunction("fun");
+    }
+
+    @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
+    public void testGetFunctionFalse() {
+        Interpreter.DynamicEnvironment env = new Interpreter.DynamicEnvironment();
+        env.getFunction("fun");
+    }
 }
