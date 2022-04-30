@@ -46,9 +46,9 @@ let%test _ = string_of_json json_pi = "3.14159"
 
 let%test _ = string_of_json json_false = "false"
 
-let%test _ = string_of_json json_null = "null"
+let%test _ = string_of_json Null = "null"
 
-let%test _ = string_of_json json_true = "true"
+let%test _ = string_of_json True = "true"
 
 let%test _ = string_of_json json_array = "[1, \"world\", null]"
 
@@ -128,7 +128,7 @@ let nest = Array [Object [];
                   Object []]
 let%test _ = not (recursive_no_field_repeats nest)
 
-let%test _ = recursive_no_field_repeats json_true
+let%test _ = recursive_no_field_repeats True
 
 let%test _ = recursive_no_field_repeats json_false
 

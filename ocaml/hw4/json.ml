@@ -20,7 +20,3 @@ let json_array = Array [Num 1.0; String "world"; Null]
 
 let json_obj = Object [("foo", json_pi); ("bar", json_array); ("ok", True)]
 
-let json_true = True 
-
-let json_null = Null
-
