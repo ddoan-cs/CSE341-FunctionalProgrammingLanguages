@@ -11,7 +11,16 @@ type json =
 
 (* some examples with values with type json *)
 let json_pi    = Num 3.14159
+
 let json_hello = String "hello"
+
 let json_false = False
+
 let json_array = Array [Num 1.0; String "world"; Null]
-let json_obj   = Object [("foo", json_pi); ("bar", json_array); ("ok", True)]
+
+let json_obj = Object [("foo", json_pi); ("bar", json_array); ("ok", True)]
+
+let json_true = True 
+
+let json_null = Null
+

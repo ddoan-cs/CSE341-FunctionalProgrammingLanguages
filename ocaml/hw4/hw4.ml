@@ -30,67 +30,174 @@ let json_string_of_float f =
 
 (* 1 *)
 let make_silly_json i =
-  failwith "Need to implement: make_silly_json"
+  let rec helper ((n: int), (l: json list)): json = 
+    if n = 0
+      then Array (List.rev(l))
+    else
+      helper(n - 1, (Object[("n",Num(float_of_int(n))); ("b", True)] :: l)) 
+    in 
+    helper(i, [])
 
 (* 2 *)
 let rec concat_with (sep, ss) =
-  failwith "Need to implement: concat_with"
+  match ss with
+  | [] -> ""
+  | [x] -> x
+  | x::xs -> x ^ sep ^ concat_with(sep, xs)
 
 (* 3 *)
-let quote_string s =
-  failwith "Need to implement: quote_string"
-
+let quote_string s = 
+  "\"" ^ s ^ "\""  
 
 (* 4 *)
 let rec string_of_json j =
-  failwith "Need to implement: string_of_json"
+  match j with
+  | Num n -> json_string_of_float(n)
+  | String s -> quote_string(s)
+  | False -> "false"
+  | True -> "true"
+  | Null -> "null"
+  | Array js ->
+    let rec helperArray (a: json list): string list =
+      match a with
+      | [] -> []
+      | x::xs -> string_of_json(x) :: helperArray(xs)   
+    in
+    "[" ^ concat_with(", ", helperArray(js)) ^ "]"
+  | Object kvs -> 
+    let rec helperObject (o: (string * json) list): string list =
+      match o with
+      | [] -> []
+      | (s, j)::xs -> (quote_string(s) ^ " : " ^ string_of_json(j)) :: helperObject(xs) 
+    in
+     "{" ^ concat_with(", ", helperObject(kvs)) ^ "}";;
 
+ string_of_json json_array    
+  
 (* 5 *)
 let rec take (n,xs) =
-  failwith "Need to implement: take"
+  match n with
+  | 0 -> []
+  | _ -> 
+    match xs with
+    | [] -> []
+    | y::ys -> y :: take(n - 1, ys)
 
 (* 6 *)
 let rec firsts xs =
-  failwith "Need to implement: firsts"
+  match xs with
+  | [] -> []
+  | (s, j)::ys -> s :: firsts(ys)
 
 (* 7 *)
-(* write your comment here *)
+(* The expressions are equivalent because both expressions operate first on
+   a pair list then either take the first components(first expression) or 
+   reduce it to the first components (2nd expression) which do the same 
+   thing in the end.
+   
+   I think both expressions would take around the same time because both 
+   functions are taking the same type of arguments but just in different 
+   order. Also I think that take on a pair list and an int list would still 
+   run the same. 
+   *)
 
 (* 8 *)
 let rec assoc (k, xs) =
-  failwith "Need to implement: assoc"
+  match xs with
+  | [] -> None
+  | (k1, v1)::ys ->
+    if k = k1 
+      then Some(v1)
+  else assoc(k, ys) 
 
 (* 9 *)
 let dot (j, f) =
-  failwith "Need to implement: dot"
+  match j with 
+  | Object o -> assoc(f, o) 
+  | _ -> None  
 
 (* 10 *)
 let rec dots (j, fs) =
-  failwith "Need to implement: dots"
+  match fs with
+  | [] -> None
+  | x::[] -> dot(j, x)
+  | x::xs -> 
+    if dot(j, x) != None
+      then dots(Option.get(dot(j, x)), xs)
+  else None
 
 (* 11 *)
 let one_fields j =
-  failwith "Need to implement: one_fields"
+  match j with 
+  | Object o -> 
+    let rec helper ((js: (string * json) list), (l: string list)): string list =
+      match js with
+      | [] -> l  
+      | (s, j)::xs -> helper(xs, s :: l)
+    in
+    helper(o, [])
+  | _ -> []  
 
 (* 12 *)
 let no_repeats xs =
-  failwith "Need to implement: no_repeats"
+  if List.length(xs) = List.length(dedup xs) 
+    then true
+else false
 
 (* 13 *)
 let rec recursive_no_field_repeats j =
-  failwith "Need to implement: recursive_no_field_repeats"
+  match j with 
+  | Array js ->
+    (let rec helperArray ((a: json list), (b: bool)) =
+      match a with
+      | [] -> b
+      | x::xs -> no_repeats(one_fields x) && helperArray(xs, b)
+    in
+    helperArray(js, false))
+  | Object kvs -> 
+    let rec helperObject ((o: (string * json) list), (l: string list)) =
+      match o with
+      | [] -> l
+      | (s, j)::xs -> helperObject(xs, s :: l)  
+    in
+    no_repeats(helperObject(kvs, []))
+  | _ -> true 
 
 (* 14 *)
 let count_occurrences (xs, e) =
-  failwith "Need to implement: count_occurrences"
+  let rec loop ((l: string list), (cur: string), (count: int), (k: (string * int) list)) =  
+  match l with 
+  | [] -> (cur, 1) :: k
+  | y::ys -> 
+    if cur > y 
+      then raise e
+  else
+      if y = cur 
+        then loop(ys, cur, count + 1, k) 
+    else loop(ys, y, 0, (cur, count) :: k)
+in 
+loop(xs, List.hd xs, 0, [])
 
 (* 15 *)
 let rec string_values_for_access_path (fs, js) =
-  failwith "Need to implement: string_values_for_access_path"
+  match js with
+  | [] -> [] 
+  | x::xs -> 
+    match dots(x, fs) with 
+    | Some(String s) -> s :: string_values_for_access_path(fs, xs)
+    | _ -> string_values_for_access_path(fs, xs) 
 
 (* 16 *)
-let rec filter_access_path_value (fs, v, js) =
-  failwith "Need to implement: filter_access_path_value"
+let rec filter_access_path_value (fs, v, js): json list =
+  match js with
+  | [] -> [] 
+  | x::xs -> 
+    match dots(x, fs) with 
+    | Some(String s) -> 
+      if s = v 
+        then x :: filter_access_path_value (fs, v, xs)
+    else filter_access_path_value (fs, v, xs)
+    | _ -> filter_access_path_value (fs, v, xs)
 
 (* Types for use in problems 17-20. *)
 type rect = { min_latitude: float; max_latitude: float;
@@ -99,18 +206,39 @@ type point = { latitude: float; longitude: float }
 
 (* 17 *)
 let in_rect (r, p) =
-  failwith "Need to implement: in_rect"
+  p.latitude <= r.max_latitude && p.latitude >= r.min_latitude &&
+  p.longitude <= r.max_longitude && p.longitude >= r.min_longitude 
 
 (* 18 *)
 let point_of_json j =
-  failwith "Need to implement: point_of_json"
+  match j with 
+  | Object o -> 
+    match (dot(j, "latitude"), dot(j, "longitude"))  with 
+    | Some(Num n1), Some(Num n2) -> Some({latitude = n1; longitude = n2})
+    | _ -> None
+  | _ -> None  
 
 (* 19 *)
 let rec filter_access_path_in_rect (fs, r, js) =
-  failwith "Need to implement: filter_access_path_in_rect"
+  match js with
+  | [] -> [] 
+  | x::xs -> 
+    match dots(x, fs) with 
+    | Some(Object o) ->  
+      if in_rect(r, Option.get(point_of_json(Object o)))
+        then x :: filter_access_path_in_rect (fs, r, xs)
+    else filter_access_path_in_rect (fs, r, xs)
+    | _ -> filter_access_path_in_rect (fs, r, xs)
 
 (* 20 *)
-(* write your comment here *)
+(* The two functions are similar because they both do the same things,
+   search and compare JSON values, except one function compares a 
+   String and the other an Object. They both also follow the same 
+   syntax, a match expression with a nested if statement, which contains 
+   the comparison condition. I do think we can refactor them, we can probably
+   take the type of the comparison and the condition as additional 
+   arguments. 5 since it was simple to adapt the original function to the 
+   other.  *)
 
 (* The definition of U district and the functions to calculate a
    histogram. Use these to create the bindings as requested by the
@@ -145,23 +273,15 @@ let histogram xs =
 let histogram_for_access_path (fs, js) =
   histogram (string_values_for_access_path (fs,js))
 
-(* This binding is commented out (because it calls dot, which is not yet implemented ).
-   Uncomment it when you are ready to do part 3.
-*)
-
-(*
 let complete_bus_positions_list =
   match (dot (complete_bus_positions, "entity")) with
   | Some (Array xs) -> xs
   | _ -> failwith "complete_bus_positions_list"
-*)
 
-exception Unimplemented
-
-(* TODO: fill out these bindings as described in the PDF. *)
-let route_histogram     = Unimplemented
-let top_three_routes    = Unimplemented
-let buses_in_ud         = Unimplemented
-let ud_route_histogram  = Unimplemented
-let top_three_ud_routes = Unimplemented
-let all_fourty_fours    = Unimplemented
+(* TODO: fill out these bindings as described in the PDF. *) 
+let route_histogram     = histogram_for_access_path (["vehicle"; "trip"; "route_num"], complete_bus_positions_list)
+let top_three_routes    = take(3, firsts(route_histogram))
+let buses_in_ud         = filter_access_path_in_rect(["vehicle"; "position";], u_district, complete_bus_positions_list)
+let ud_route_histogram  = histogram_for_access_path (["vehicle"; "trip"; "route_num"], buses_in_ud)
+let top_three_ud_routes = take(3, firsts(ud_route_histogram))
+let all_fourty_fours    = filter_access_path_value (["vehicle"; "trip"; "route_num"], "44", complete_bus_positions_list)
