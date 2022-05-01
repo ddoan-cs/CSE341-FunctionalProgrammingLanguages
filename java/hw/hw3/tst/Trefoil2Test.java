@@ -97,8 +97,7 @@ public class Trefoil2Test {
 
     @Test(expected = Trefoil2.TrefoilError.RuntimeError.class)
     public void testEqualsIntWrongType() {
-        assertEquals(Expression.ofBoolean(false),
-                Interpreter.interpretExpression(Expression.parseString("(= 4 true)")));
+        Interpreter.interpretExpression(Expression.parseString("(= 4 true)"));
     }
 
     @Test

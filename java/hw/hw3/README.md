@@ -10,7 +10,7 @@ S-expressions, in case you want to Google.)
 This tour is careful to discuss every file, so you might want to only skim this tour on first reading.
 
 You made it into the `hw3/` subdirectory. Here's what you see.
-- `README.md`: his file, your guide to HW3
+- `README.md`: this file, your guide to HW3
 - `LANGUAGE.md`: the specification for Trefoil v2
 - `FEEDBACK.md`: our usual questions about homework, to fill out after you're done
 - `src/`: Java files implementing the interpreter
