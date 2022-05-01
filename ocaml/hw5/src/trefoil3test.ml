@@ -202,7 +202,10 @@ let%test "struct mynil constructor" =
   Ast.StructConstructor ("mynil", []) = ieab0 (bsos program, eos "(mynil)")
 
 let%test "struct mycons constructor" =
-  let program = "(struct mycons mycar mycdr)" in
+  let program =
+    "(struct mynil)
+     (struct mycons mycar mycdr)"
+  in
   let mynil_ast = Ast.StructConstructor ("mynil", []) in
   Ast.StructConstructor ("mycons", [mynil_ast; mynil_ast]) =
     ieab0 (bsos program, eos "(mycons (mynil) (mynil))")
