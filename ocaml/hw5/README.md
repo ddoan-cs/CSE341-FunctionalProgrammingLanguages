@@ -149,6 +149,11 @@ the Grading section at the end of this file.
   - `dune build` should not report any errors.
 - Ensure you can run the unit tests by running `dune runtest`. You should see a
   bunch of messages followed by `FAILED 37 / 63 tests`.
+- You can use `dune utop` similar to HW4.
+  - After `dune utop`, type `open Trefoil3lib;;`.
+  - Then you can refer to functions from the file `ast.ml` by prefixing them
+    with `Ast.` as in `Ast.expr_of_pst`. Or, if you don't like that, you can say
+    `open Ast;;` and then refer `expr_of_pst`.
 - Have a look at `LANGUAGE.md` to get an idea of the list of expressions,
   bindings, and patterns you will be implementing.
 
