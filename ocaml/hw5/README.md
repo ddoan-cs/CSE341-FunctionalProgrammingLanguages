@@ -5,6 +5,16 @@ This homework has three parts:
 2. Add structs and pattern matching to Trefoil
 3. Write a reasonably substantial amount of code *in* Trefoil v3
 
+## Before you start: One more OCaml package
+
+We decided to use one more OCaml package. Please run
+
+```
+opam install ppx_deriving
+```
+
+Otherwise, the starter code will not build.
+
 ## Detailed tour of the starter code
 
 You made it into the `hw5/` subdirectory. Here's what you see.
@@ -126,6 +136,10 @@ the Grading section at the end of this file.
   you understand how ASTs are represented in OCaml as variant types, how dynamic
   environments are represented as association lists, and how the interpreters
   for expressions and bindings do their job.
+- Install one more opam package:
+  ```
+  opam install ppx_deriving
+  ```
 - Ensure you can build the code by running `dune build`. (You can run this
   command either in the `hw5/` directory or the `hw5/src` directory. It will do
   the same thing.)
