@@ -134,7 +134,7 @@ the Grading section at the end of this file.
     to finish writing the function.
   - `dune build` should not report any errors.
 - Ensure you can run the unit tests by running `dune runtest`. You should see a
-  bunch of messages followed by `FAILED 16 / 41 tests`.
+  bunch of messages followed by `FAILED 37 / 63 tests`.
 - Have a look at `LANGUAGE.md` to get an idea of the list of expressions,
   bindings, and patterns you will be implementing.
 
