@@ -154,6 +154,15 @@ the Grading section at the end of this file.
   - Then you can refer to functions from the file `ast.ml` by prefixing them
     with `Ast.` as in `Ast.expr_of_pst`. Or, if you don't like that, you can say
     `open Ast;;` and then refer `expr_of_pst`.
+- You can also run the interpreter interactively by running
+  ```
+  dune exec ./src/trefoil3.exe
+  ```
+  from this directory. (Or, from the `src` directory, run `dune exec ./trefoil3.exe`.)
+  You can also pass a filename to the interpreter like this
+  ```
+  dune exec ./src/trefoil3.exe my-program.trefoil
+  ```
 - Have a look at `LANGUAGE.md` to get an idea of the list of expressions,
   bindings, and patterns you will be implementing.
 
