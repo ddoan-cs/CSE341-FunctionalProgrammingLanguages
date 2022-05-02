@@ -226,8 +226,8 @@ let%test "struct mynil mycons predicate" =
 
 let%test "struct mycons accessors" =
   let program = "(struct mycons mycar mycdr)" in
-  Ast.IntLit 0 = ieab0 (bsos program, eos "(mycons-mycar (mycons 0 1)") &&
-  Ast.IntLit 1 = ieab0 (bsos program, eos "(mycons-mycdr (mycons 0 1)")
+  Ast.IntLit 0 = ieab0 (bsos program, eos "(mycons-mycar (mycons 0 1))") &&
+  Ast.IntLit 1 = ieab0 (bsos program, eos "(mycons-mycdr (mycons 0 1))")
 
 let%test "struct mycons accessors error case" =
   let program =
