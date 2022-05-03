@@ -18,7 +18,7 @@ let rec lookup (dynenv, name) =
      else lookup (dynenv, name)
 
 (* ignore this until working on part 2 *)
-let rec interpret_pattern (pattern, value): entry list option =
+let rec interpret_pattern (pattern, value): dynamic_env option =
   match pattern, value with
   | WildcardPattern, _ -> Some []
   | ConsPattern (p1, p2), Cons (v1, v2) -> begin
