@@ -554,6 +554,15 @@ play with the language a bit.
             Check that *all* the matches return "yes and ..." and append
             together all the bindings introduced.
   - [ ] Ensure provided test "match struct binding" pass.
+- [ ] According to `LANGUAGE.md`, it is an error if any pattern in a match
+  expression repeats a variable name. Fix this in your interpreter so that the
+  test named "`sum_with_match_error`" passes.
+  - Hint: In `ast.ml`, write a function `vars_of_pattern` that takes a pattern
+          and returns a list of strings containing all the variable names that
+          appear anywhere in the pattern.
+  - Hint: In `expr_of_pst` in the case for `match` expressions, first parse the
+          pattern, then check that `vars_of_pattern` applied to the parsed
+          pattern returns a list with no duplicates. (Use `has_duplicates`.)
 
 ### Part 3: Extending and using Trefoil v3
 
