@@ -486,10 +486,11 @@ play with the language a bit.
   - In the semantics, patterns are described as returning "no" or "yes and `B`".
     In the code, we implement this using an `option` type, specifically
     ```
-    entry list option
+    dynamic_env option
     ```
     where "no" corresponds to `None` in the code, and "yes and `B`" corresponds
-    to `Some B` in the code, where `B` is implemented as a list of `entry`.
+    to `Some B` in the code, where `B` is implemented as a list of `string * entry`,
+    or in other words, a dynamic environment.
   - Review the semantics of integer literal patterns in detail.
 - [ ] Implement integer literal patterns in the interpreter by adding a case to
   `interpret_pattern`.
