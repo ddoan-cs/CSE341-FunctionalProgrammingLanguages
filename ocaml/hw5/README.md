@@ -321,6 +321,12 @@ play with the language a bit.
 
 ### Part 2: Implement new Trefoil v3 features
 
+#### Trefoil Symbols and Structural Equality
+- Familiarize yourself with the syntax and semantics of Trefoil-symbol literals in `LANGUAGE.md`.
+- Check out the provided AST declaration for symbols in `ast.ml`.
+  - See the `Symbol` constructor of the `expr` type.
+- Check out the provided parsing code in `expr_of_pst` in `ast.ml`
+- [ ] Implement symbols in `interpret_expr` in `interpreter.ml`.
 - [ ] Implement the new extended semantics of `=`.
   - Hint: This involves only deleting code from the starter code!!!
 - [ ] Near the top of `FEEDBACK.md`, answer the question about structural equality.

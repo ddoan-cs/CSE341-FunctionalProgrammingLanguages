@@ -1,0 +1,19 @@
+(library
+ (name hw6)
+ (modules hw6)
+ (libraries hw6types))
+
+(library
+ (name hw6types)
+ (modules hw6types))
+
+(library
+ (name hw6test)
+ (modules hw6test)
+ (libraries hw6 hw6types)
+ (inline_tests)
+ (preprocess (pps ppx_inline_test)))
+
+(env
+  (dev
+    (flags (:standard -warn-error -A -w -27 -w -39 -w -33 -w -26))))
