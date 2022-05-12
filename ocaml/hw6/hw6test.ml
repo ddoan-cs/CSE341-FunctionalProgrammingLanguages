@@ -43,7 +43,7 @@ let%test _ = caps_no_X_string "" = ""
 
 (* 7 *)
 (*
-let%test _ = first_answer (fun x -> Some (x * 10)) [1; 2; 3] = Some 10
+let%test _ = first_answer (fun x -> Some (x * 10)) [1; 2; 3] = 10
 *)
 
 (* 8 *)
