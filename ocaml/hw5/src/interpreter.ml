@@ -94,11 +94,8 @@ let rec interpret_expression (dynenv, e) =
   (* TODO: add case for let expressions here *)
   | Let (e1, e2, e3) -> begin
     let v1 = interpret_expression (dynenv, e2) in
-    let v2 = interpret_expression (((e1, VariableEntry v1) :: dynenv), e3) in
-    match lookup (dynenv, e1) with
-    | None -> raise (RuntimeError ("Unbound variable " ^ e1))
-    | Some (VariableEntry value) -> value
-    | Some e -> raise (RuntimeError ("Expected name " ^ e1 ^ " to refer to a variable, but got something else: " ^ entry_of_string e))
+    interpret_expression (((e1, VariableEntry v1) :: dynenv), e3) 
+
   end
   | Cons (e1, e2) ->
      let v1 = interpret_expression (dynenv, e1) in
@@ -130,14 +127,14 @@ let rec interpret_expression (dynenv, e) =
       | None -> raise (RuntimeError ("Unbound function " ^ fun_name))
       | Some ((FunctionEntry (fb, defenv)) as entry) ->   
          let defenv = (fun_name, entry) :: defenv in
-         let values: expr list = interpret_list (dynenv, arg_exprs) in
+         let values: expr list = interpret_list (callenv, arg_exprs) in
          let param_names: string list = fb.param_names in
          let rec helper ((l: expr list), (n: string list), (p: (string * entry) list)) =
           match l, n with 
           | [],[] -> p
           | x :: xs, y :: ys -> helper(xs, ys, ((y, VariableEntry x) :: p))
           | _ -> raise (RuntimeError ("arguments not valid")) in
-        interpret_expression(helper(values, param_names, []) @ dynenv, fb.body) 
+        interpret_expression(helper(values, param_names, []) @ defenv, fb.body) 
       | Some (StructEntry sb) -> 
         let values = interpret_list(dynenv, arg_exprs) in  
         if List.length(sb.field_names) != List.length(values) 
