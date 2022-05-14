@@ -62,12 +62,15 @@ let%test _ =
 
   (* TODO: replace "Ast.Nil" on the next line with the correct AST for the
      expression above by calling your Let constructor. *)
-  let manually_constructed_let = Ast.Nil in
+  let manually_constructed_let = Ast.Let("x", Ast.IntLit 3, Ast.Plus(Ast.Variable "x", Ast.IntLit 1)) in
   parsed_let = manually_constructed_let
 
 (* TODO: test parsing malformed let expressions by filling in the template.*)
-let%test _ = try ignore (eos "TODO: your expression here"); false
+let%test _ = try ignore (eos "(let ((x)) (+ x 1))"); false
              with AbstractSyntaxError _ -> true
+
+let%test _ = try ignore (eos "(let (x) (+ x 1))"); false
+            with AbstractSyntaxError _ -> true             
 
 let%test _ = Ast.IntLit 4 = ie0 (eos "(let ((x 3)) (+ x 1))")
 let%test _ = Ast.IntLit 2 = ie0 (eos "(let ((x 1)) (let ((x 2)) x))")
@@ -81,15 +84,15 @@ let%test _ = Ast.IntLit 2 = ie0 (eos "(cdr (cons 1 2))")
 let%test _ = Ast.IntLit 3 = ieab0 (bsos "(define x (+ 1 2))", eos "x")
 
 let%test "test binding parsing" =
-  let parsed_test = bos "TODO: your test binding string here" in
+  let parsed_test = bos "(test (= x 1))" in
 
   (* TODO: replace the right hand side of the equals sign on the next line with
      the correct AST for your test binding above by calling your constructor. *)
-  let manually_constructed_test = Ast.VarBinding("replace", Ast.Variable "me") in
+  let manually_constructed_test = Ast.TestBinding(Ast.Equals(Ast.Variable "x", Ast.IntLit 1)) in
   parsed_test = manually_constructed_test
 
 let%test "test binding parsing malformed" =
-  try ignore (bos "TODO: your malformed test binding here"); false
+  try ignore (bos "(test (+ x 1) 1)"); false
   with AbstractSyntaxError _ -> true
 
 (* the "%test_unit" means the test passes unless it throws an exception *)
@@ -144,15 +147,15 @@ let%test "sum_countdown" =
                          eos "(sum (countdown 10))")
 
 let%test "cond parsing test" =
-  let parsed_cond = eos "TODO: your cond string here" in
+  let parsed_cond = eos "(cond ((nil? 1) 0)) " in
 
   (* TODO: replace Ast.Nil on the next line with the correct AST for your cond
      expression above by calling the Cond constructor from expr. *)
-  let manually_constructed_cond = Ast.Nil in
+  let manually_constructed_cond = Ast.Cond([(Ast.IsNil (Ast.IntLit 1), (Ast.IntLit 0))]) in
   parsed_cond = manually_constructed_cond
 
 let%test "cond parsing malformed" =
-  try ignore (eos "TODO: your malformed cond expression here"); false
+  try ignore (eos "(cond ((nil? 1)))"); false
   with AbstractSyntaxError _ -> true
 
 
@@ -186,15 +189,15 @@ let%test _ =
 
 
 let%test "struct binding parsing" =
-  let parsed_struct = bos "TODO: your struct binding string here" in
+  let parsed_struct = bos "(struct state name)" in
 
   (* TODO: replace the right hand side of the equals sign on the next line with
      the correct AST for your struct binding above by calling your constructor. *)
-  let manually_constructed_struct = Ast.VarBinding("replace", Ast.Variable "me") in
+  let manually_constructed_struct = Ast.StructBinding {Ast.name = "state"; Ast.field_names = ["name"]} in
   parsed_struct = manually_constructed_struct
 
 let%test "struct binding parsing malformed" =
-  try ignore (bos "TODO: your malformed struct binding here"); false
+  try ignore (bos "(struct my-empty-record name name)"); false
   with AbstractSyntaxError _ -> true
 
 let%test "struct mynil constructor" =
@@ -253,15 +256,15 @@ let%test "cond struct binding sum countdown" =
 
 
 let%test "match parsing test" =
-  let parsed_match = eos "TODO: your match string here" in
+  let parsed_match = eos "(match (+ 2 2) (_ false))" in
 
   (* TODO: replace Ast.Nil on the next line with the correct AST for your match
      expression above by calling your new match constructor from expr. *)
-  let manually_constructed_match = Ast.Nil in
+  let manually_constructed_match = Ast.Match((Ast.Plus(Ast.IntLit 2, Ast.IntLit 2)), [(Ast.WildcardPattern, Ast.BoolLit false)]) in
   parsed_match = manually_constructed_match
 
 let%test "match parsing malformed" =
-  try ignore (eos "TODO: your malformed match expression here"); false
+  try ignore (eos "(match (+ 2 2) (_))"); false
   with AbstractSyntaxError _ -> true
 
 let%test "match expression with wildcards and cons 1" =

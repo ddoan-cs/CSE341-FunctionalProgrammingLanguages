@@ -5,6 +5,12 @@ type pattern =
   | WildcardPattern
   | ConsPattern of pattern * pattern
 (* TODO: add more patterns here *)
+  | IntLitPattern of int
+  | BoolLitPattern of bool 
+  | NilPattern
+  | SymbolPattern of string
+  | StructPattern of pattern * pattern list
+  | VariablePattern of string
 [@@deriving show]
 let string_of_pattern = show_pattern
 
@@ -16,19 +22,21 @@ let rec pattern_of_pst p =
   | Pst.Symbol sym -> begin
      try
        let n = int_of_string sym in
-       (* TODO: delete the next line and instead build an integer literal pattern here using n *)
-       raise StarterCodeFailure
+       IntLitPattern n 
      with
        Failure _ ->
        match sym with
        | "_" -> WildcardPattern
-       | "true" -> failwith "TODO: convert this to the right constructor of your pattern AST type"
+       | "true" -> BoolLitPattern true
        (* TODO: add other cases here for "false" and "nil" *)
+       | "false" -> BoolLitPattern false
+       | "nil" -> NilPattern 
        | _ ->
           if String.get sym 0 = '\'' (* if the string starts with an apostrophe *)
           then let sym_without_apostrophe = String.sub sym 1 (String.length sym - 1)
-               in failwith "TODO: build a symbol pattern using sym_without_apostrophe"
-          else failwith "TODO: build a variable pattern using sym"
+               in 
+               SymbolPattern (sym)
+          else VariablePattern (sym)
     end
   | Pst.Node [] -> raise (AbstractSyntaxError "Expected pattern but got '()'")
   | Pst.Node (head :: args) ->
@@ -52,6 +60,7 @@ type expr =
   | Equals of expr * expr
   | If of expr * expr * expr
 (* TODO: add constructor for let expressions here *)
+  | Let of string * expr * expr  
   | Nil
   | Cons of expr * expr
   | IsNil of expr
@@ -64,8 +73,11 @@ type expr =
   | Symbol of string
   | Cond of (expr * expr) list
   | StructConstructor of string * expr list  (* internal AST node; not written by Trefoil programmer *)
+  | StructPredicate of string * expr 
+  | StructAccess of string * int * expr
   (* TODO: add other "internal" expression ASTs here *)
   (* TODO: add match expression constructor to the expr type here *)
+  | Match of expr * (pattern * expr) list
 [@@deriving show]
 let string_of_expr = show_expr
 
@@ -109,7 +121,9 @@ let rec expr_of_pst p =
      | Pst.Symbol "=", _ -> raise (AbstractSyntaxError ("operator = expects 2 args but got " ^ Pst.string_of_pst p))
      | Pst.Symbol "if", [branch; thn; els] -> If (expr_of_pst branch, expr_of_pst thn, expr_of_pst els)
      | Pst.Symbol "if", _ -> raise (AbstractSyntaxError ("'if' special form expects 3 args but got " ^ Pst.string_of_pst p))
-     (* TODO: add cases for let expressions here *)
+     (* TODO: add cases for let expressions here *) 
+     | Pst.Symbol "let", [Pst.Node[Pst.Node[Pst.Symbol fst; snd]]; right] -> Let (fst, expr_of_pst snd, expr_of_pst right)
+     | Pst.Symbol "let", _ -> raise (AbstractSyntaxError ("let expects 2 args but got " ^ Pst.string_of_pst p))
      | Pst.Symbol "cons", [left; right] -> Cons (expr_of_pst left, expr_of_pst right)
      | Pst.Symbol "cons", _ -> raise (AbstractSyntaxError ("cons expects 2 args but got " ^ Pst.string_of_pst p))
      | Pst.Symbol "nil?", [arg] -> IsNil (expr_of_pst arg)
@@ -130,13 +144,24 @@ let rec expr_of_pst p =
              (* TODO: replace "[]" below with code to parse a cond clause.
                 - Hint: convert e1 and e2 to expressions, pair them up, and cons
                   them onto the recursive call on xs *)
-             []
+              (expr_of_pst e1, expr_of_pst e2) :: clause_loop(xs)
           | x :: _ -> raise (AbstractSyntaxError("Malformed 'cond' clause: " ^ Pst.string_of_pst x))
         in
         Cond (clause_loop clauses)
 
      (* TODO: add parsing for match expressions here *)
-
+     | Pst.Symbol "match", arg1 :: clauses ->
+      let rec clause_loop (clauses: Pst.pst list): (pattern * expr) list =
+        match clauses with
+        | [] -> []
+        | Pst.Node [e1; e2] :: xs ->
+           (* TODO: replace "[]" below with code to parse a cond clause.
+              - Hint: convert e1 and e2 to expressions, pair them up, and cons
+                them onto the recursive call on xs *)
+            (pattern_of_pst e1, expr_of_pst e2) :: clause_loop(xs)
+        | x :: _ -> raise (AbstractSyntaxError("Malformed 'cond' clause: " ^ Pst.string_of_pst x))
+      in
+      Match (expr_of_pst arg1, clause_loop clauses)   
 
      (* Otherwise, if it doesn't match any of the above, it's a function call. *)
      | Pst.Symbol f, args ->
@@ -171,6 +196,7 @@ type binding =
    | TopLevelExpr of expr
    | FunctionBinding of function_binding
    (* TODO: add a constructor for test bindings here *)
+   | TestBinding of expr
    | StructBinding of struct_binding
 [@@deriving show]
 let string_of_binding = show_binding
@@ -189,10 +215,15 @@ let binding_of_pst p =
         FunctionBinding {name; param_names; body = expr_of_pst rhs}
      | Pst.Symbol "define", _ -> raise (AbstractSyntaxError("This definition is malformed " ^ Pst.string_of_pst p))
      (* TODO: parse test bindings here *)
-
+     | Pst.Symbol "test", [arg] -> TestBinding(expr_of_pst arg)
+     | Pst.Symbol "test", _ -> raise (AbstractSyntaxError("This test is malformed " ^ Pst.string_of_pst p))
      | Pst.Symbol "struct", Pst.Symbol name :: field_names ->
         (* note: a struct with a field of the same name as the struct itself is allowed *)
-        failwith "TODO: parse struct bindings here."
+        let n: string list = check_symbols (name, field_names) in
+        if has_duplicates n 
+        then raise (AbstractSyntaxError "no duplicate names allowed")
+      else   
+        StructBinding {name; field_names = n}
      | Pst.Symbol "struct", _ -> raise (AbstractSyntaxError("'struct' bindings must at least one argument, but got none"))
 
      | Pst.Node _, _ -> raise (AbstractSyntaxError("Expected binding to start with a symbol but got " ^ Pst.string_of_pst p))
