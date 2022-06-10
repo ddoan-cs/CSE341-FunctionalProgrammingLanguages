@@ -9,13 +9,10 @@ type pattern =
   | BoolLitPattern of bool 
   | NilPattern
   | SymbolPattern of string
-  | StructPattern of pattern * pattern list
+  | StructPattern of string * pattern list
   | VariablePattern of string
 [@@deriving show]
 let string_of_pattern = show_pattern
-
-(* TODO: delete this exception, which we just use because Failure is taken by int_of_string in one place *)
-exception StarterCodeFailure
 
 let rec pattern_of_pst p =
   match p with
@@ -33,16 +30,21 @@ let rec pattern_of_pst p =
        | "nil" -> NilPattern 
        | _ ->
           if String.get sym 0 = '\'' (* if the string starts with an apostrophe *)
-          then let sym_without_apostrophe = String.sub sym 1 (String.length sym - 1)
-               in 
-               SymbolPattern (sym)
+          then let sym_without_apostrophe = String.sub sym 1 (String.length sym - 1) in 
+          SymbolPattern (sym_without_apostrophe)
           else VariablePattern (sym)
     end
   | Pst.Node [] -> raise (AbstractSyntaxError "Expected pattern but got '()'")
   | Pst.Node (head :: args) ->
      match head, args with
      | Pst.Symbol "cons", [p1; p2] -> ConsPattern (pattern_of_pst p1, pattern_of_pst p2)
-     | Pst.Symbol s, ps -> failwith "TODO: build a struct pattern using patterns ps"
+     | Pst.Symbol s, ps -> 
+      let rec ps_loop ps = 
+        match ps with
+        | [] -> []
+        | x :: xs -> pattern_of_pst x :: ps_loop xs
+      in
+      StructPattern (s, ps_loop ps)
      | _ -> raise (AbstractSyntaxError ("Expected pattern, but got " ^ Pst.string_of_pst p))
 
 let pattern_of_string s =
@@ -155,11 +157,8 @@ let rec expr_of_pst p =
         match clauses with
         | [] -> []
         | Pst.Node [e1; e2] :: xs ->
-           (* TODO: replace "[]" below with code to parse a cond clause.
-              - Hint: convert e1 and e2 to expressions, pair them up, and cons
-                them onto the recursive call on xs *)
             (pattern_of_pst e1, expr_of_pst e2) :: clause_loop(xs)
-        | x :: _ -> raise (AbstractSyntaxError("Malformed 'cond' clause: " ^ Pst.string_of_pst x))
+        | x :: _ -> raise (AbstractSyntaxError("Malformed 'match' clause: " ^ Pst.string_of_pst x))
       in
       Match (expr_of_pst arg1, clause_loop clauses)   
 
@@ -219,10 +218,9 @@ let binding_of_pst p =
      | Pst.Symbol "test", _ -> raise (AbstractSyntaxError("This test is malformed " ^ Pst.string_of_pst p))
      | Pst.Symbol "struct", Pst.Symbol name :: field_names ->
         (* note: a struct with a field of the same name as the struct itself is allowed *)
-        let n: string list = check_symbols (name, field_names) in
-        if has_duplicates n 
-        then raise (AbstractSyntaxError "no duplicate names allowed")
-      else   
+        let n: string list = check_symbols ("Struct field names", field_names) in
+        if has_duplicates n
+        then raise (AbstractSyntaxError("No field names are shared."));
         StructBinding {name; field_names = n}
      | Pst.Symbol "struct", _ -> raise (AbstractSyntaxError("'struct' bindings must at least one argument, but got none"))
 

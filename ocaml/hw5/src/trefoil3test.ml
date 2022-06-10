@@ -299,6 +299,10 @@ let%test "match expression with variable patterns" =
   let program = "(define x 3)" in
   Ast.IntLit 306 = ieab0 (bsos program, eos "(match (cons (+ x 14) (+ x 15)) ((cons a b) (* a b)) (_ 42))")
 
+let%test "match expression with nil literal patterns" = 
+  let program = "(define x nil)" in
+  Ast.IntLit 17 = ieab0 (bsos program, eos "(match x ('world 25) (nil 17) (true 30) (_ 42))")
+
 
 let%test "match struct binding" =
   let program =
@@ -308,3 +312,4 @@ let%test "match struct binding" =
      (define (countdown n) (if (= n 0) (mynil) (mycons n (countdown (- n 1)))))"
   in
   Ast.IntLit 55 = ieab0 (bsos program, eos "(sum (countdown 10))")
+

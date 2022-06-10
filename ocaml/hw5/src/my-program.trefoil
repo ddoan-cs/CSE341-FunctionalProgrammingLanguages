@@ -1,0 +1,19 @@
+(struct date day month year)
+
+(define (fst3 x) (date-day x))
+(define (snd3 x) (date-month x))
+(define (thd3 x) (date-year x))
+
+(define mydate (date 7 13 2002))
+(define match (date 7 13 2002))
+(define no_match (date 6 9 2022))
+
+(define (is_same x y) 
+    (if (= (fst3 x) (fst3 y)) 
+        (if (= (snd3 x) (snd3 y)) 
+            (if (= (thd3 x) (thd3 y)) 
+            true false) false) false))
+
+(is_same mydate match)               
+(is_same mydate no_match)   
+

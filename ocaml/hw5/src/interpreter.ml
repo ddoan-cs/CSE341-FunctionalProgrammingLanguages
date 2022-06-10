@@ -27,26 +27,42 @@ let rec interpret_pattern (pattern, value): dynamic_env option =
      | _ -> None
     end
   (* TODO: add cases for other kinds of patterns here *)
+  | SymbolPattern b, Symbol v -> begin
+    if v = b 
+      then Some []
+  else None   
+   end 
   | BoolLitPattern b, BoolLit v -> begin
-    if b == v 
+    if v = b 
       then Some []
   else None   
    end
   | NilPattern, v -> begin
-    if v  = Nil 
+    if v = Nil 
       then Some []
   else None   
    end
   | IntLitPattern b, IntLit v -> begin
-    if v == b 
+    if v = b 
       then Some []
   else None   
    end
-  | SymbolPattern b, Symbol v -> begin
-    if v == b 
-      then Some []
-  else None   
-   end 
+  | VariablePattern x, v -> begin 
+    Some [x, VariableEntry v] 
+  end
+  | StructPattern (s, ps), StructConstructor (s', vs) -> begin
+    if (s != s' || List.length ps != List.length vs)  
+      then None 
+  else let rec loop (ps, vs) = 
+    match ps, vs with 
+    | x :: xs, y :: ys -> 
+      (match interpret_pattern(x, y) with
+      | None -> None
+      | Some l -> Some (l @ Option.get(loop(xs,ys))))
+    | _ -> None
+  in
+  loop (ps, vs)
+  end
   | _ -> None
 
 let rec interpret_expression (dynenv, e) =
@@ -127,7 +143,7 @@ let rec interpret_expression (dynenv, e) =
       | None -> raise (RuntimeError ("Unbound function " ^ fun_name))
       | Some ((FunctionEntry (fb, defenv)) as entry) ->   
          let defenv = (fun_name, entry) :: defenv in
-         let values: expr list = interpret_list (callenv, arg_exprs) in
+         let values = interpret_list (callenv, arg_exprs) in
          let param_names: string list = fb.param_names in
          let rec helper ((l: expr list), (n: string list), (p: (string * entry) list)) =
           match l, n with 
@@ -136,7 +152,7 @@ let rec interpret_expression (dynenv, e) =
           | _ -> raise (RuntimeError ("arguments not valid")) in
         interpret_expression(helper(values, param_names, []) @ defenv, fb.body) 
       | Some (StructEntry sb) -> 
-        let values = interpret_list(dynenv, arg_exprs) in  
+        let values = interpret_list(callenv, arg_exprs) in  
         if List.length(sb.field_names) != List.length(values) 
           then raise (RuntimeError ("parameters do not match arguments")) 
       else StructConstructor(sb.name, values)
@@ -156,24 +172,28 @@ let rec interpret_expression (dynenv, e) =
      loop clauses
   | Symbol _ -> e
   (* TODO: add cases for the other "internal" expressions here *)
-  | StructPredicate (s, v) -> begin
-    match interpret_expression (dynenv, v) with
-    | StructConstructor (s', vs) -> 
-      if s = s' 
+  | StructPredicate (s, v) -> begin 
+      match interpret_expression (dynenv, v) with 
+      | StructConstructor (s', vs) -> 
+        if s = s' 
         then BoolLit true 
-    else BoolLit false  
+        else BoolLit false
+      | _ -> BoolLit false   
   end
-  | StructAccess (s, i, v) -> begin
-    match interpret_expression (dynenv, v) with
+  | StructAccess(s, i, v) -> begin 
+    match interpret_expression(dynenv, v) with 
     | StructConstructor (s', vs) -> 
-      if s = s' && i < List.length vs
-       then let rec helper ((index: int), (l)) = 
-        match index, l with 
-        | i, x :: _ -> x 
-        | _, x :: xs -> helper(index + 1, xs) in
-      helper(0, vs)
-      else raise (RuntimeError ("there is no such element"))
-    end    
+      if (s = s' && i < List.length vs) 
+        then (let rec helper ((index: int), (l: expr list)) =
+          match l with 
+          | [] -> raise ((RuntimeError("No such element exists in the struct"))) 
+          | x :: xs -> 
+            (if i = index then x
+            else helper((index + 1, xs))) in
+      helper(0, vs))
+        else raise ((RuntimeError("No such element exists in the struct")))    
+    | _ -> raise ((RuntimeError("No such element exists in the struct")))    
+  end
   (* TODO: add case for match expressions here *)
   | Match (e, clauses) -> 
     let v = interpret_expression (dynenv, e) in
@@ -181,12 +201,16 @@ let rec interpret_expression (dynenv, e) =
       match clauses with
       | [] -> raise (RuntimeError("match failure: no clauses left"))
       | (pattern, expr) :: clauses ->
-      match interpret_pattern (pattern, v) with
-       | None -> loop clauses
-       | Some(b) -> interpret_expression(b, expr) 
+        match pattern with 
+        | ConsPattern (VariablePattern x, VariablePattern y) -> if x = y then raise (AbstractSyntaxError("match clauses can't have patterns that contain reuses of variable patterns"))
+        else   (match interpret_pattern (pattern, v) with
+                | None -> loop clauses
+                | Some(b) -> interpret_expression(b @ dynenv, expr))
+        | _ -> match interpret_pattern (pattern, v) with
+              | None -> loop clauses
+              | Some(b) -> interpret_expression(b @ dynenv, expr)
     in
     loop clauses
-    
 
 let interpret_binding (dynenv, b) =
   match b with
@@ -213,20 +237,20 @@ let interpret_binding (dynenv, b) =
      let dynenv = (sb.name, StructEntry (sb)) :: dynenv in
 
      (* TODO: create struct predicate function here *)
-     let dynenv = (sb.name, FunctionEntry ({name = (sb.name ^ "?"); param_names = sb.field_names;
-     body = StructPredicate(sb.name, Variable "x")}, dynenv))  :: dynenv in
+     let dynenv = (sb.name ^ "?", FunctionEntry ({name = sb.name; param_names = ["x"];
+     body = StructPredicate(sb.name, Variable "x")}, dynenv)) :: dynenv in 
+     
 
     (* TODO: uncomment this when ready to do accessor functions *)
     let fun_entry_for_accessor (idx, field_name): string * entry =
-      (sb.name, FunctionEntry ({name = (sb.name ^ "?"); param_names = sb.field_names;
-      body = StructAccess(field_name, idx, Variable "x")}, dynenv)) in
+      ((sb.name ^ "-" ^ field_name), FunctionEntry ({name = sb.name; param_names =  ["x"];
+      body = StructAccess(sb.name, idx, Variable "x")}, dynenv)) in
       let rec fun_entry_accessor_loop (idx, field_names) =
          match field_names with
          | [] -> []
          | f :: field_names -> fun_entry_for_accessor (idx, f) :: fun_entry_accessor_loop (idx+1, field_names)
        in
        let dynenv = fun_entry_accessor_loop (0, sb.field_names) @ dynenv in
-  
 
      dynenv
 
